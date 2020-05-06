@@ -14,19 +14,16 @@
     $(document).ready ( function(){
 
         // import bootstrap so we can use modals
+        // I realize we use jQuery to import jQuery a few lines down, but it won't work otherwise ¯\_(ツ)_/¯
         $('head').append('<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">');
         $('body').append(`<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>`);
-
-
-        //document.querySelector('style').append(`.modal-backdrop {opacity: .5 !imporant}`);
-        //console.log(document.querySelector('head'));
+                          <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+                          <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>`);
 
         const parent = document.querySelector('#right-side');
 
         const modalContent = `
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">${document.querySelector('#quiz_title').value}</h5>
@@ -36,7 +33,7 @@
       </div>
       <div class="modal-body" id="modal-body">
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer float-left">
         <button type="button" class="btn btn-primary" id="copyText">Copy to Clipboard</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
@@ -48,6 +45,7 @@
         modal.setAttribute('tabindex', '-1');
         modal.setAttribute('role', 'dialog');
         modal.setAttribute('id', 'contentModal');
+        modal.style.cssText = "";
         modal.innerHTML = modalContent;
 
         document.querySelector('body').append(modal);
@@ -99,39 +97,62 @@
             dataType:   'JSON'
         })
             .then(function(response) {
-                let returnContent = document.createElement('div');
-                console.log(response);
-                $.each(response, function(index, value) {
-                    // question title
-                    const qName = document.createElement('h5');
-                    qName.innerText = index + 1 + ") " + value.question_name + "  -  Points: " + value.points_possible;
+            let returnContent = document.createElement('div');
+            returnContent.style.cssText = "width: 100%; padding-left: 10%; padding-right: 10%";
+            console.log(response);
+            $.each(response, function(index, value) {
+                // question title
+                const qName = document.createElement('h5');
+                qName.innerText = index + 1 + ") " + value.question_name + "  -  Points: " + value.points_possible;
 
-                    // question text
-                    const qText = document.createElement('div');
-                    qText.innerHTML = value.question_text;
+                // question text
+                const qText = document.createElement('div');
+                const imgInfo = [];
+                //console.log(value.question_text);
+                // get all the images' info in the question
 
-                    returnContent.append(qName);
-                    returnContent.append(qText);
+                qText.innerHTML = value.question_text;
 
-                    // list of answers, marks the correct answer(s) based on weight property
-                    const answersWrapper = document.createElement('div');
-                    answersWrapper.innerText = 'Answers:';
-                    const answers = document.createElement('ol');
-                    answersWrapper.append(answers);
+                returnContent.append(qName);
+                returnContent.append(qText);
 
-                    $.each(value.answers, function(i, answer) {
-                        let li = document.createElement('li');
-                        if(answer.weight > 0) li.innerText = answer.text + " (Correct)";
-                        else li.innerText = answer.text;
-                        answers.append(li);
-                    });
-                    returnContent.append(answersWrapper);
+                // list of answers, marks the correct answer(s) based on weight property
+                const answersWrapper = document.createElement('div');
 
-                    returnContent.append(document.createElement('br'));
+                answersWrapper.innerText = 'Answers:';
+                const answers = document.createElement('ol');
+                answersWrapper.append(answers);
+
+                $.each(value.answers, function(i, answer) {
+                    let li = document.createElement('li');
+                    if(answer.weight > 0) li.innerText = answer.text + " (Correct)";
+                    else li.innerText = answer.text;
+                    answers.append(li);
                 });
 
-                document.querySelector('#modal-body').append(returnContent);
-             }); // end .then()
+                // get images info
+                const temp = document.createElement('div'); //temp div to treat it as html instead of string
+                temp.innerHTML = value.question_text;
+                if(temp.querySelectorAll('img').length > 0) {
+                    const images = document.createElement('div');
+                    images.innerHTML = 'Image Info:';
+                    const imagesList = document.createElement('ol');
+                    images.append(imagesList);
+                    for(let img of temp.querySelectorAll('img')) {
+                        const li = document.createElement('li');
+                        li.innerHTML = `Source: <a href="${img.src}">${img.src}</a> <br>Alt Text: ${img.alt} <br>`
+                        imagesList.append(li);
+                    }
+                    answersWrapper.append(images);
+                }
+
+                returnContent.append(answersWrapper);
+
+                returnContent.append(document.createElement('br'));
+            });
+
+            document.querySelector('#modal-body').append(returnContent);
+        }); // end .then()
 
 
     });
