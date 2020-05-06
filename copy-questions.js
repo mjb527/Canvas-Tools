@@ -61,6 +61,11 @@
         el.setAttribute('data-toggle', 'modal');
         el.setAttribute('data-target', '#contentModal');
 
+        el.style.marginTop = '10px';
+        el.style.marginBottom = '10px';
+        el.style.width = '100%';
+
+
         const icon = document.createElement('i');
         icon.classList.add('icon-document');
         el.append(icon);
@@ -85,7 +90,7 @@
         const exp = new RegExp('https://([a-zA-Z]+).instructure.com/courses/([0-9]+)/quizzes/([0-9]+)/edit');
         const matches = href.match(exp);
 
-        const url = `https://${matches[1]}.instructure.com/api/v1/courses/${matches[2]}/quizzes/${matches[3]}/questions`;
+        const url = `https://${matches[1]}.instructure.com/api/v1/courses/${matches[2]}/quizzes/${matches[3]}/questions.json?per_page=500`;
 
         $.ajax ( {
             async :     true,
@@ -95,6 +100,7 @@
         })
             .then(function(response) {
                 let returnContent = document.createElement('div');
+                console.log(response);
                 $.each(response, function(index, value) {
                     // question title
                     const qName = document.createElement('h5');
