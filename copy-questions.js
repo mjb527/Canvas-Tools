@@ -99,7 +99,7 @@
             .then(function(response) {
             let returnContent = document.createElement('div');
             returnContent.style.cssText = "width: 100%; padding-left: 10%; padding-right: 10%";
-            console.log(response);
+
             $.each(response, function(index, value) {
                 // question title
                 const qName = document.createElement('h5');
@@ -107,28 +107,27 @@
 
                 // question text
                 const qText = document.createElement('div');
-                const imgInfo = [];
-                //console.log(value.question_text);
-                // get all the images' info in the question
 
                 qText.innerHTML = value.question_text;
 
                 returnContent.append(qName);
                 returnContent.append(qText);
 
+
                 // list of answers, marks the correct answer(s) based on weight property
                 const answersWrapper = document.createElement('div');
+                if(value.answers.length > 0) {
+                    answersWrapper.innerText = 'Answers:';
+                    const answers = document.createElement('ol');
+                    answersWrapper.append(answers);
 
-                answersWrapper.innerText = 'Answers:';
-                const answers = document.createElement('ol');
-                answersWrapper.append(answers);
-
-                $.each(value.answers, function(i, answer) {
-                    let li = document.createElement('li');
-                    if(answer.weight > 0) li.innerText = answer.text + " (Correct)";
-                    else li.innerText = answer.text;
-                    answers.append(li);
-                });
+                    $.each(value.answers, function(i, answer) {
+                        let li = document.createElement('li');
+                        if(answer.weight > 0) li.innerText = answer.text + " (Correct)";
+                        else li.innerText = answer.text;
+                        answers.append(li);
+                    });
+                }
 
                 // get images info
                 const temp = document.createElement('div'); //temp div to treat it as html instead of string
@@ -142,11 +141,29 @@
                         const li = document.createElement('li');
                         li.innerHTML = `Source: <a href="${img.src}">${img.src}</a> <br>Alt Text: ${img.alt} <br>`
                         imagesList.append(li);
+                        }
+                        answersWrapper.append(images);
                     }
-                    answersWrapper.append(images);
+
+                // get videos info
+
+                if(temp.querySelectorAll('iframe').length > 0) {
+                    const vids = document.createElement('div');
+                    vids.innerHTML = "Video Info:";
+                    const vidList = document.createElement('ol');
+                    vids.append(vidList);
+                    for(let vid of temp.querySelectorAll('iframe')) {
+                        const li = document.createElement('li');
+                        li.innerHTML = `Source: <a href="${vid.src}">${vid.src}</a>`;
+                        vidList.append(li);
+                    }
+                    answersWrapper.append(vids);
                 }
 
+
+
                 returnContent.append(answersWrapper);
+
 
                 returnContent.append(document.createElement('br'));
             });
