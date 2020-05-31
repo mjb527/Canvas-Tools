@@ -31,8 +31,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body" id="modal-body">
-      </div>
+      <div class="modal-body" id="modal-body" style="overflow-wrap: break-word; word-wrap: break-word; hyphens: auto;"></div>
       <div class="modal-footer float-left">
         <button type="button" class="btn btn-primary" id="copyText">Copy to Clipboard</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
